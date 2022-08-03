@@ -146,22 +146,25 @@ function Insert({ navigation, route }) {
             isDarkModeEnabled={true}
           />
           <TouchableOpacity
-            disabled={mode ? false : true}
+            // disabled를 통해서 mode가 false이면 버튼이 작동하지 않도록 할 수 있다. 일단 테스트 위해 주석처리 해둠
+            // disabled={mode ? false : true}
             style={mode ? styles.button : styles.button2}
             onPress={() => check(value)}
           >
             <Text style={mode ? styles.comfirm : styles.comfirm2}>
-              {mode ? "확인" : "데이터 수집 중"}
+              {mode ? "확인" : "데이터 수집 중"+mode}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
               style={styles.button}
               onPress={() => {
-                navigation.navigate("Shuttle", {lat: route.params.lat, long: route.params.long
+                // navigation.navigate("Shuttle", {lat: route.params.lat, long: route.params.long
+                // 셔틀버스 대신 Car로 이동
+                navigation.navigate("Car", {lat: route.params.lat, long: route.params.long
 });
               }}
             >
-              <Text style={styles.shuttletext}>셔틀 버스</Text>
+              <Text style={styles.shuttletext}>자동차</Text>
             </TouchableOpacity>
         </View>
       </View>
@@ -264,5 +267,9 @@ const styles = StyleSheet.create({
   shuttletext: {
     fontSize: 30,
     fontWeight: "bold",
+  },
+  SH1: {
+    fontSize: 30,
+    fontweight: "bold",
   },
 });

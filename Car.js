@@ -19,81 +19,13 @@ import { es } from "date-fns/locale";
 
 const db = SQLite.openDatabase("db.db");
 
-function Lists({ navigation, route }) {
-  let [data, setdata] = useState([]);
+function Car({ navigation, route, lat1, lon1, }) {
   let [sortdata, setsortdata] = useState([]);
-  let [Okay, setOkay] = useState(false);
-  let [mode, setmode] = useState(false);
 
-  async function T(incity, outcity) {
-    let i = await InTime(incity, route.params.id, route.params.ttime);
-    console.log("i", i);
-    let e = await ReadDB(i);
-    let t = await OutTime(outcity, route.params.id, route.params.ttime);
-    let j = await ReadDB(t);
-    console.log("t", t);
-    // let e = await ReadDB(i, t);
-  }
-  async function ReadDB(a) {
-    console.log("db시작");
-    let all = [];
-    db.transaction((tx) => {
-      tx.executeSql(`select * from InCity`, [], (tx, result) => {
-        if (result.rows.length === 0) {
-          console.log("db is empty");
-        } else {
-          for (let i = 0; i < result.rows.length; ++i) {
-            if (all.includes(result.rows._array)) {
-            } else {
-              all.push(result.rows._array[i]);
-              setdata(all);
-            }
-          }
-        }
-      });
-    });
-    db.transaction((tx) => {
-      tx.executeSql(`select * from Out`, [], (tx, result) => {
-        if (result.rows.length === 0) {
-          console.log("db is empty");
-        } else {
-          for (let i = 0; i < result.rows.length; ++i) {
-            if (all.includes(result.rows._array)) {
-            } else {
-              all.push(result.rows._array[i]);
-              setdata(all);
-            }
-          }
-        }
-        setOkay(true);
-        console.log("All", all);
-      });
-    });
-  }
+  lat1 = route.params.lat
+  lon1 = route.params.long
+
   useEffect(() => {
-    let incity = [];
-    let outcity = [];
-    db.transaction(async (tx) => {
-      tx.executeSql(`DELETE from Out where Schedule`);
-      tx.executeSql(`DELETE from InCity where Schedule`);
-      tx.executeSql(`select * from InCity`, [], (tx, result) => {
-        if (result.rows.length === 0) {
-          console.log("db is empty");
-        }
-        for (let i = 0; i < result.rows.length; i++) {
-          incity.push(result.rows._array[i]);
-        }
-      });
-      tx.executeSql(`select * from Out`, [], (tx, result) => {
-        if (result.rows.length === 0) {
-          console.log("db is empty");
-        }
-        for (let i = 0; i < result.rows.length; i++) {
-          outcity.push(result.rows._array[i]);
-        }
-        T(incity, outcity);
-      });
-    });
   }, []);
 
   let [a, seta] = useState("");
@@ -120,6 +52,7 @@ function Lists({ navigation, route }) {
     return `${hour}시 ${minute}분`;
   };
 
+/*
   const ItemRender = ({ item }) => (
     <TouchableOpacity>
       <View style={styles.list}>
@@ -136,39 +69,69 @@ function Lists({ navigation, route }) {
           </Text>
         </Text>
         <View style={styles.path}>
-          {item.PathType === 2 ? (
-            <Icon size={50} name="bus-outline"></Icon>
-          ) : (
-            <Icon size={50} name="train-outline"></Icon>
-          )}
-
-          <Text>{item.Name}</Text>
+          <Icon size={50} name="-outline"></Icon>
+          <Text>item.Name: 중괄호 제거해둠</Text>
         </View>
-        <Text style={styles.fare}>요금 : {item.Fare.toLocaleString()}원</Text>
+        <Text style={styles.fare}>요금 : totalFare원/taxiFare원</Text>
       </View>
     </TouchableOpacity>
   );
-  // if (route.params.ttime <= 54020) {
-  //   if (route.params.id === "화" || "수" || "목" || "금") {
-  //     return (
-  //       <View style={styles.footer}>
-  //         <Button title="조건11-2-32" onPress={() => Alert.alert("셔틀버스")} />
-  //       </View>
-  //     );
-  //   } else if (route.params.id === "월") {
-  //     return (
-  //       <View style={styles.footer}>
-  //         <Button title="조건11-2-31" onPress={() => Alert.alert("셔틀버스")} />
-  //       </View>
-  //     );
-  //   }
-  // } else if (route.params.ttime <= 60020 && route.params.ttime >= 60000) {
-  //   return (
-  //     <View style={styles.footer}>
-  //       <Button title="조건12-2" onPress={() => Alert.alert("셔틀버스")} />
-  //     </View>
-  //   );
-  // }
+*/
+const options = {
+  method: 'POST',
+  headers: {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+    appKey: 'l7xx1317e6cad24d4f0d8048aa7336e5623b',
+  },
+  body: JSON.stringify({
+    routesInfo: {
+      departure: {
+        name: 'test1',
+        lon: '126.963936',
+        lat: '37.536025',
+        depSearchFlag: '05',
+      },
+      destination: {
+        name: '한경국립대학교 안성캠퍼스',
+        lon: '127.26428852',
+        lat: '37.00969046',
+        poiId: '313532',
+        rpFlag: '16',
+        destSearchFlag: '03',
+      },
+      predictionType: 'departure',
+      predictionTime: '2022-07-29T03:00:00+0900',
+      searchOption: '00',
+      tollgateCarType: 'car',
+      trafficInfo: 'N',
+    },
+  }),
+};
+
+const [data, setData] = useState([]);
+const [loading, setLoading] = useState(false);
+let data2 = JSON.stringify({data});
+let data3 = Object.assign(data2);;
+let d2type = typeof(data2);
+let d3type = typeof(data3);
+
+let {totalTime, taxiFare} = data3;
+
+const getData = () => {
+  setLoading(true);
+  fetch(
+    'https://apis.openapi.sk.com/tmap/routes/prediction?version=1&resCoordType=WGS84GEO&reqCoordType=WGS84GEO&sort=index&callback=function&totalValue=2',
+    options
+  )
+    .then((res) => res.json())
+    .then((res) => setData(res));
+};
+
+useEffect(() => {
+  getData();
+}, []);
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -244,23 +207,26 @@ function Lists({ navigation, route }) {
         </Menu>
       </View>
       <View style={styles.contents}>
-        {Okay ? (
-          <FlatList
+        <Text>"실험"</Text>
+        <Text>totalTime: {totalTime}</Text>
+        <Text>data: 출력 안되네</Text>
+        <Text>typeofd2: {d2type}</Text>
+        <Text>data2: {data2}</Text>
+        <Text>typeofd3: {d3type}</Text>
+        <Text>data3: {data3}</Text>
+        <FlatList
             keyExtractor={(item, index) => index.toString()}
             extraData={data}
             data={data}
             renderItem={(itemData) => <ItemRender item={itemData.item} />}
-          />
-        ) 
-        : (
-          <Text>데이터를 받아오고 있습니다.</Text>
-        )}
+        />
       </View>
     </SafeAreaView>
   );
 }
 
-export default Lists;
+export default Car;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -317,3 +283,37 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
 });
+
+/*
+const options = {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      appKey: 'l7xx1317e6cad24d4f0d8048aa7336e5623b'
+    },
+    body: JSON.stringify({
+      routesInfo: {
+        departure: {name: 'test1', lon: '126.963936', lat: '37.536025', depSearchFlag: '05'},
+        destination: {
+          name: '한경국립대학교 안성캠퍼스',
+          lon: '127.26428852',
+          lat: '37.00969046',
+          poiId: '313532',
+          rpFlag: '16',
+          destSearchFlag: '03'
+        },
+        predictionType: 'departure',
+        predictionTime: '2022-07-29T03:00:00+0900',
+        searchOption: '00',
+        tollgateCarType: 'car',
+        trafficInfo: 'N'
+      }
+    })
+  };
+  
+  fetch('https://apis.openapi.sk.com/tmap/routes/prediction?version=1&resCoordType=WGS84GEO&reqCoordType=WGS84GEO&sort=index&callback=function&totalValue=2', options)
+    .then(response => response.json())
+    .then(response => console.log(response))
+    .catch(err => console.error(err));
+*/

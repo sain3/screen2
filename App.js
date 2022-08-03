@@ -8,6 +8,7 @@ import Insert from "./TimeScreen";
 import Alarm from "./AlarmScreen";
 import Lists from "./ListScreen";
 import Shuttle from "./Shuttlebus";
+import Car from "./Car";
 
 const Stack = createStackNavigator();
 
@@ -39,6 +40,11 @@ export default function App() {
           options={{ headerShown: false }} //
           name="Shuttle"
           component={Shuttle}
+        />
+        <Stack.Screen
+          options={{ headerShown: false }} //
+          name="Car"
+          component={Car}
         />
       </Stack.Navigator>
     </NavigationContainer>
