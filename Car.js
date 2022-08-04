@@ -53,7 +53,7 @@ function Car({ navigation, route, lat1, lon1, }) {
   };
 
 /*
-  const ItemRender = ({ item }) => (
+  const ItemRender2 = ({ item }) => (
     <TouchableOpacity>
       <View style={styles.list}>
         <Text style={styles.itemtime}>
@@ -65,14 +65,14 @@ function Car({ navigation, route, lat1, lon1, }) {
                 : styles.itemtime
             }
           >
-            {item.Schedule}
+            {item.Schedule} // {properties.departureTime}
           </Text>
         </Text>
         <View style={styles.path}>
           <Icon size={50} name="-outline"></Icon>
           <Text>item.Name: 중괄호 제거해둠</Text>
         </View>
-        <Text style={styles.fare}>요금 : totalFare원/taxiFare원</Text>
+        <Text style={styles.fare}>요금 : {properties.totalFare}원/{properties.taxiFare}원</Text>
       </View>
     </TouchableOpacity>
   );
@@ -111,12 +111,28 @@ const options = {
 
 const [data, setData] = useState([]);
 const [loading, setLoading] = useState(false);
-let data2 = JSON.stringify({data});
-let data3 = Object.assign(data2);;
-let d2type = typeof(data2);
-let d3type = typeof(data3);
+let data2 = JSON.stringify({data}); // data를 json문자열(?)로 변환한다.
+let d2type = typeof(data2); // 쓸모없는 듯
+// let data3 = Object.assign(data2);; // 쓸모없다. 배열을 객체로 바꾸는 함수가 아니다.
 
-let {totalTime, taxiFare} = data3;
+// api를 통해 받아온 파일은 json형식 객체 였다. 따라서 이를 출력할 수 없었는데, 
+// json.stringify를 사용하여 json문자열로 변경하여 출력할 수 있었떤 것이었다.
+// json.parse()를 이용해보자.
+
+// let dataparse = JSON.parse({data}); // data는 json객체배열이라서 객체로 바뀌는지 모르겠다.
+let testData = JSON.parse(data2);
+let properties = JSON.stringify(testData.data.features.properties);
+/* 필요 없는 듯
+let totalDistance = properties.totalDistance;
+let totalTime = properties.totalTimes;
+let totalFare = properties.totalFare;
+let taxiFare = properties.taxiFare;
+let departureTime = properties.departureTime;
+let arrivalTime = properties.arrivalTime;
+let caritem = Object.assign({}, )
+*/
+// JSON.parse(JSON.stringify({data}, []))
+// let {totalTime, taxiFare} = data; // 작동안함
 
 const getData = () => {
   setLoading(true);
@@ -207,18 +223,15 @@ useEffect(() => {
         </Menu>
       </View>
       <View style={styles.contents}>
-        <Text>"실험"</Text>
-        <Text>totalTime: {totalTime}</Text>
-        <Text>data: 출력 안되네</Text>
-        <Text>typeofd2: {d2type}</Text>
+        <Text>properties: {properties}</Text>
+        <Text>//객체 출력 불가</Text>
+        <Text>typeofd2: {typeof(data2)}</Text>
         <Text>data2: {data2}</Text>
-        <Text>typeofd3: {d3type}</Text>
-        <Text>data3: {data3}</Text>
         <FlatList
             keyExtractor={(item, index) => index.toString()}
             extraData={data}
             data={data}
-            renderItem={(itemData) => <ItemRender item={itemData.item} />}
+            renderItem={(itemData) => <ItemRender2 item={itemData.item} />}
         />
       </View>
     </SafeAreaView>
